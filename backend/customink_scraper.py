@@ -6,7 +6,6 @@ Description: Scraper for customink specifically.
 from selenium import webdriver
 
 import base_scraper
-import config as c
 
 class CustomInkScraper(base_scraper.Scraper):
 
@@ -25,7 +24,7 @@ class CustomInkScraper(base_scraper.Scraper):
                 CustomInkScraper.selector_map)
 
         self.driver.get('https://www.customink.com/quotes?product_id=04600')
-        self.fill_form(form_inputs, CustomInkScraper.submit_selector)
+        self._fill_form(form_inputs, CustomInkScraper.submit_selector)
         print self.driver.find_element_by_css_selector('.qq-quotedPrice').text
 
 if __name__ == '__main__':

@@ -12,27 +12,34 @@ class Scraper(object):
         self.driver = webdriver.PhantomJS()
 
     def _map_params_to_selectors(self, generic, selector_map):
+        """
+        Takes an object with generic inputs and values and converts them to the
+        appropriate CSS selector values for a given scraper.
+        """
         form_input = {}
         for gen, val in generic.iteritems():
             form_input[selector_map[gen]] = val
 
         return form_input
 
-    def fill_form(self, form_params, submit_param):
+    def _fill_form(self, form_params, submit_param):
         """
         Fills out a form and submits it.
         """
-        print form_params
         for selector, value in form_params.iteritems():
-            self.driver.find_element_by_css_selector(selector).send_keys(value)
+            if value == 'click':
+                self.driver.find_element_by_css_selector(selector).click()
+            else:
+                self.driver.find_element_by_css_selector(selector).send_keys(
+                        value)
 
         self.driver.find_element_by_css_selector(submit_param).click()
 
-    def get_quote():
+    def get_quote(self):
         """
         Gets the quote for a given set of inputs.
         """
         pass
 
-    def shutdown():
+    def shutdown(self):
         self.driver.quit()
