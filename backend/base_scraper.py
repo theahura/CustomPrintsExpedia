@@ -18,7 +18,8 @@ class Scraper(object):
         """
         form_input = {}
         for gen, val in generic.iteritems():
-            form_input[selector_map[gen]] = val
+            if gen in selector_map:
+                form_input[selector_map[gen]] = val
 
         return form_input
 

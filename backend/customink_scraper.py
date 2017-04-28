@@ -25,7 +25,7 @@ class CustomInkScraper(base_scraper.Scraper):
 
         self.driver.get('https://www.customink.com/quotes?product_id=04600')
         self._fill_form(form_inputs, CustomInkScraper.submit_selector)
-        print self.driver.find_element_by_css_selector('.qq-quotedPrice').text
+        return self.driver.find_element_by_css_selector('.qq-quotedPrice').text
 
 if __name__ == '__main__':
     scraper = CustomInkScraper()
@@ -37,5 +37,5 @@ if __name__ == '__main__':
         'zipcode': '07920'
     }
 
-    scraper.get_quote(inputs)
+    print scraper.get_quote(inputs)
     scraper.shutdown()
