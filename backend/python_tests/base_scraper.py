@@ -14,7 +14,8 @@ class Scraper(object):
     def _map_params_to_selectors(self, generic, selector_map):
         """
         Takes an object with generic inputs and values and converts them to the
-        appropriate CSS selector values for a given scraper.
+        appropriate CSS selector values for a given scraper. Skips over all
+        values that are not present in the selector_map.
         """
         form_input = {}
         for gen, val in generic.iteritems():
@@ -36,7 +37,7 @@ class Scraper(object):
 
         self.driver.find_element_by_css_selector(submit_param).click()
 
-    def get_quote(self):
+    def get_quote(self, inputs):
         """
         Gets the quote for a given set of inputs.
         """
