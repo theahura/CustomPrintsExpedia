@@ -3,6 +3,16 @@
  * @Description: Tools for various scrapers
  */
 
+
+/*
+ * Returns a function that returns a promise.
+ *
+ * This is necessary to store the selector in context, which would otherwise
+ * change by the time the promise executes. In addition, note that click and
+ * keys are async commands that are forced to run sequentially by the caller.
+ * This guarantees that the right element is clicked when keys runs.
+ *
+ */
 function fillFormHelper(browser, selector, formInputs) {
 
     return function() {
@@ -27,6 +37,13 @@ function fillFormHelper(browser, selector, formInputs) {
 module.exports = {
     /*
      * Fills out a form and submits it.
+     *
+     * The trick here is figuring out how to make clicks and keys sequential as
+     * both are async in webdriver.io. This function generates a list of
+     * functions that return promises and then executes those functions
+     * sequentially, forcing synchronous behavior on asynchronous commands -
+     * specifically, it ensures that the right element is clicked when keys is
+     * run.
      */
     fillForm: function(browser, formInputs, submitButton, callback) {
         var promises = [];
