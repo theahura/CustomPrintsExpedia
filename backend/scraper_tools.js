@@ -2,8 +2,29 @@
  * @Author: Amol Kapoor
  * @Description: Tools for various scrapers
  */
-module.exports = {
 
+function fillFormHelper(browser, selector, formInputs) {
+
+    return function() {
+        var promise = new Promise( (resolve, reject) => {
+            browser.click(selector).then( () => {
+                browser.keys(formInputs[selector]).then( () => {
+                    resolve();
+                }, (err) => {
+                    console.log("error with keys")
+                    reject(err);
+                });
+            }, err => {
+                console.log("error with click");
+                reject(err);
+            });
+        });
+
+        return promise;
+    }
+}
+
+module.exports = {
     /*
      * Fills out a form and submits it.
      */
@@ -11,28 +32,20 @@ module.exports = {
         var promises = [];
 
         for (var selector in formInputs) {
-            if(formInputs[selector] == 'click')
-                promises.push(browser.click(selector));
-            else {
-                var promise = new Promise( (resolve, reject) => {
-                    browser.click(selector).keys(formInputs[selector]).then( () => {
-                        resolve() 
-                    });
-                });
-
-                promises.push(promise);
-            }
+            promises.push(fillFormHelper(browser, selector, formInputs));
         }
 
-        Promise.all(promises).then(values => {
-            browser.click(submitButton).then( () => {
+        promises.reduce(function(cur, next) {
+            return cur.then(next);
+        }, Promise.resolve()).then( () => {
+             browser.click(submitButton).then( () => {
                 callback();
+            }, err => {
+                browser.saveScreenshot('./temp.png')
+                console.log('error handler');
+                console.log(err);
+                callback("Error: Form could not be filled.")
             });
-        }, values => {
-            browser.saveScreenshot('./temp.png')
-            console.log('error handler')
-            console.log(values)
-            callback("Error: Form could not be filled.")
         });
     },
 

@@ -1,6 +1,9 @@
-var customink = require('./customink_scraper')
 var phantomjs = require('phantomjs-prebuilt')
 var webdriverio = require('webdriverio')
+
+var browserCommands = require('./browserCommands')
+var customink = require('./customink_scraper')
+
 var wdOpts = { desiredCapabilities: { browserName: 'phantomjs' } }
 
 phantomjs.run('--webdriver=4444').then(program => {

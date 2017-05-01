@@ -31,11 +31,11 @@ module.exports = {
                     return;
                 }
 
-                console.log("form done");
-                browser.saveScreenshot('./temp.png')
                 browser.getText('.qq-quotedPrice').then(quote => {
-                    console.log('got the quote')
                     callback(quote)
+                }, err => {
+                    console.log('err in getting text');
+                    callback(null, err);
                 });
 
             });
