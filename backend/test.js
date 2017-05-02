@@ -1,35 +1,46 @@
+/*
+ * @Author: Amol Kapoor
+ * @Description: Runs scrapers on test inputs.
+ */
+
 var phantomjs = require('phantomjs-prebuilt')
 var webdriverio = require('webdriverio')
 
-var browserCommands = require('./browserCommands')
-var customink = require('./customink_scraper')
+var customink = require('./customink-scraper')
 
 var wdOpts = { desiredCapabilities: { browserName: 'phantomjs' } }
 
+var globalbrowser = null;
+var globalprogram = null;
+
 phantomjs.run('--webdriver=4444').then(program => {
+
+    globalbrowser = webdriverio.remote(wdOpts);
+
+    globalbrowser.init().then( () => {console.log("done with init")});
+
+    globalprogram = program;
+});
+
+setTimeout( () => {
 
     var inputs = {
         'quantity': '10',
-        'front_colors': '3',
-        'back_colors': '2',
+        'frontColors': '3',
+        'backColors': '2',
         'zipcode': '07920'
     }
 
-    browser = webdriverio.remote(wdOpts);
+    console.log("Starting quotes")
+    customink.getQuote(globalbrowser, inputs, function(quote, err) {
 
-    browser.init().then( () => {
-        customink.getQuote(browser, inputs, function(quote, err) {
+        if (err) {
+            console.log(err)
+        }
 
-            if (err) {
-                console.log(err)
-            }
+        console.log(quote);
 
-            console.log(quote);
-
-            program.kill();
-        });
+        globalprogram.kill();
     });
-
-});
-
+}, 5000);
 

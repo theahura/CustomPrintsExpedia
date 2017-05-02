@@ -69,7 +69,7 @@ module.exports = {
     /*
      * Takes an object with generic inputs and values and converts them to the
      * appropriate CSS selector values for a given scraper. Skips over all
-     * values that are not present in the selector_map.
+     * values that are not present in the selectorMap.
      */
     mapParamsToSelectors: function(generic, selectorMap) {
 
