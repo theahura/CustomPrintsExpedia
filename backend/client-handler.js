@@ -7,7 +7,7 @@ var io = require('socket.io').listen(4000);
 var phantomjs = require('phantomjs-prebuilt')
 var webdriverio = require('webdriverio')
 
-var scrapers = require('scrapers');
+var scrapers = require('./scrapers');
 
 var wdOpts = { desiredCapabilities: { browserName: 'phantomjs' } }
 var browser = null;
@@ -18,6 +18,7 @@ var program = null;
  * message header.
  */
 function serverError(socket, message, callback) {
+    console.log(message);
     callback(null, {name: 'Error', message: message});
 }
 
@@ -29,9 +30,9 @@ function serverError(socket, message, callback) {
 function serverHandler(socket, data, callback) {
 
     if (data.name === 'getQuote') {
-        scrapers.getQuotes(data, (quotes, err) => {
+        scrapers.getQuotes(browser, data, (quotes, err) => {
             if (err)
-                serverError(socket, 'Quote retrieval failed', callback);
+                serverError(socket, 'Quote retrieval failed: ' + err, callback);
             else
                 callback(quotes);
         });
@@ -65,11 +66,10 @@ io.sockets.on('connection', function(socket) {
         console.log('got disconnect');
     });
 
-    socket.on('clientToServer', function(data, callback) {
-
+    socket.on("clientToServer", function(data, callback) {
         if(!(data && data.name))
             serverError(socket, 'Data did not have a name', callback);
-
-        serverHandler(socket, data, callback);
+        else
+            serverHandler(socket, data, callback);
     });
 });

@@ -29,6 +29,7 @@ module.exports = {
      * @param callback: function that takes as params (quote, err)
      */
     getQuote: function(browser, inputs, callback) {
+        console.log('get quote called')
 
         var formInputs = tools.mapParamsToSelectors(inputs, selectorMap);
 
