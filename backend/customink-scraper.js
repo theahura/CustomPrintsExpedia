@@ -12,9 +12,10 @@ var selectorMap = {
         'zipcode':      '#quick_quote_postal_code',
 }
 
+var companyName = 'Customink';
+var baseUrl = 'https://www.customink.com/quotes?product_id=04600';
 var submitSelector = '.sb-Btn.sb-Btn--primary.sb-Btn--block'
-
-var customink_url = 'https://www.customink.com/quotes?product_id=04600'
+var quoteSelector = '.qq-quotedPrice';
 
 module.exports = {
 
@@ -29,24 +30,29 @@ module.exports = {
      * @param callback: function that takes as params (quote, err)
      */
     getQuote: function(browser, inputs, callback) {
-        console.log('get quote called')
+        console.log('customink quote called')
 
         var formInputs = tools.mapParamsToSelectors(inputs, selectorMap);
 
-        browser.url(customink_url).then( () => {
+        browser.url(baseUrl).then( () => {
+
+            console.log('in url')
 
             tools.fillForm(browser, formInputs, submitSelector, function(err) {
 
+                console.log('form filed')
+
                 if (err) {
-                    callback({company: 'Customink'}, err);
+                    callback({company: companyName}, err);
                     return;
                 }
 
-                browser.getText('.qq-quotedPrice').then(quote => {
-                    callback({company: 'Customink', quote: quote})
+                browser.getText(quoteSelector).then(quote => {
+                    console.log('quote retrieved')
+                    callback({company: companyName, quote: quote})
                 }, err => {
                     console.log('err in getting text');
-                    callback({company: 'Customink'}, err);
+                    callback({company: companyName}, err);
                 });
 
             });

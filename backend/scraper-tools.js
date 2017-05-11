@@ -12,20 +12,23 @@
  * keys are async commands that are forced to run sequentially by the caller.
  * This guarantees that the right element is clicked when keys runs.
  *
+ * Inputs should be given as selector : keys. If the keys field is empty,
+ * functionally works as a click.
  */
 function fillFormHelper(browser, selector, formInputs) {
 
     return function() {
         var promise = new Promise( (resolve, reject) => {
             browser.click(selector).then( () => {
+                browser.saveScreenshot(selector + '.png')
                 browser.keys(formInputs[selector]).then( () => {
                     resolve();
                 }, (err) => {
-                    console.log("error with keys")
+                    console.log("error with keys: " + selector)
                     reject(err);
                 });
             }, err => {
-                console.log("error with click");
+                console.log("error with click: " + selector);
                 reject(err);
             });
         });
@@ -55,14 +58,21 @@ module.exports = {
         promises.reduce(function(cur, next) {
             return cur.then(next);
         }, Promise.resolve()).then( () => {
-             browser.click(submitButton).then( () => {
-                callback();
-            }, err => {
-                browser.saveScreenshot('./temp.png')
-                console.log('error handler');
-                console.log(err);
-                callback("Error: Form could not be filled.")
-            });
+            if (submitButton) {
+                 browser.click(submitButton).then( () => {
+                    callback();
+                }, err => {
+                    browser.saveScreenshot('./err.png')
+                    console.log('error handler');
+                    console.log(err);
+                    callback("Error: Form could not be filled.")
+                });
+             } else {
+                 callback();
+             }
+        }, err => {
+            console.log('err in filling form')
+            callback(null, err);
         });
     },
 
