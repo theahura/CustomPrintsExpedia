@@ -9,6 +9,11 @@ var clothes2orderscraper = require('./clothes2order-scraper')
 var scrapers = [custominkScraper,
                 clothes2orderscraper];
 
+/**
+ * Need to run async calls synchronously, so we create functions that return
+ * promises that can then be run in a reduce call. See scraper-tools for the
+ * same procedure in form filling.
+ */
 function getQuotesHelper(browser, data, scraper) {
     return function() {
         var promise = new Promise((resolve, reject) => {
@@ -39,6 +44,9 @@ module.exports = {
 
         promises.reduce(function(cur, next) {
             return cur.then(data => {
+                // Still not quite sure how this works; seems to get executed
+                // BEFORE cur AND next do? Likely has to do with cur being 
+                // promise.resolve instead of an actual function to start
                 if (data)
                     quotes[data.company] = data.value
                 console.log(data)
