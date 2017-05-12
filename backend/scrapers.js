@@ -18,11 +18,6 @@ function getQuotesHelper(browser, data, scraper) {
     return function() {
         var promise = new Promise((resolve, reject) => {
             scrapers[scraper].getQuote(browser, data, (data, err) => {
-                data = {
-                    company: data.company,
-                    value: err ? err : data.quote
-                }
-
                 resolve(data);
             });
         });

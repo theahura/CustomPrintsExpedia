@@ -13,14 +13,47 @@ var selectorMap = {
 }
 
 var companyName = 'Customink';
-var baseUrl = 'https://www.customink.com/quotes?product_id=04600';
+var minBaseUrl = 'https://www.customink.com/quotes?product_id=04600';
+var maxBaseUrl = 'https://www.customink.com/quotes?product_id=304604';
 var submitSelector = '.sb-Btn.sb-Btn--primary.sb-Btn--block'
 var quoteSelector = '.qq-quotedPrice';
+
+/**
+ * Helper function that actually gets the quotes.
+ */
+function getQuoteHelper(browser, url, data, callback) {
+
+    browser.url(url).then( () => {
+
+        console.log('in url');
+
+        tools.fillForm(browser, data, submitSelector, function(err) {
+
+            console.log('form filed');
+
+            if (err) {
+                callback(null, err);
+                return;
+            }
+
+            browser.getText(quoteSelector).then(quote => {
+                console.log('quote retrieved')
+                callback(quote)
+            }, err => {
+                console.log('err in getting text');
+                callback(null, err);
+            });
+
+        });
+
+    });
+
+}
 
 module.exports = {
 
     /**
-     * Gets a quote from customink for a basic tshirt.
+     * Gets a quote range from customink for tshirts.
      *
      * @param inputs:
      *  - quantity
@@ -30,33 +63,17 @@ module.exports = {
      * @param callback: function that takes as params (quote, err)
      */
     getQuote: function(browser, inputs, callback) {
-        console.log('customink quote called')
+        console.log('customink quote called');
 
+        var value = {};
         var formInputs = tools.mapParamsToSelectors(inputs, selectorMap);
 
-        browser.url(baseUrl).then( () => {
-
-            console.log('in url')
-
-            tools.fillForm(browser, formInputs, submitSelector, function(err) {
-
-                console.log('form filed')
-
-                if (err) {
-                    callback({company: companyName}, err);
-                    return;
-                }
-
-                browser.getText(quoteSelector).then(quote => {
-                    console.log('quote retrieved')
-                    callback({company: companyName, quote: quote})
-                }, err => {
-                    console.log('err in getting text');
-                    callback({company: companyName}, err);
-                });
-
+        getQuoteHelper(browser, minBaseUrl, formInputs, (quote, err) => {
+            value['min'] = err ? err : quote;
+            getQuoteHelper(browser, maxBaseUrl, formInputs, (quote, err) => {
+                value['max'] = err ? err : quote;
+                callback({company: companyName, value: value});
             });
-
         });
-    }   
+    }
 }

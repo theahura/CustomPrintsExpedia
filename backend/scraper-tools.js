@@ -20,7 +20,6 @@ function fillFormHelper(browser, selector, formInputs) {
     return function() {
         var promise = new Promise( (resolve, reject) => {
             browser.click(selector).then( () => {
-                browser.saveScreenshot(selector + '.png')
                 browser.keys(formInputs[selector]).then( () => {
                     resolve();
                 }, (err) => {
@@ -49,6 +48,7 @@ module.exports = {
      * run.
      */
     fillForm: function(browser, formInputs, submitButton, callback) {
+        console.log('filling form');
         var promises = [];
 
         for (var selector in formInputs) {

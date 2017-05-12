@@ -48,24 +48,24 @@ module.exports = {
                     console.log('filled form')
 
                     if (err) {
-                        callback({company: companyName}, err);
+                        callback({company: companyName, value: err}, err);
                         return;
                     }
 
                     browser.getText(quoteSelector).then(quote => {
                         console.log('quote retrieved')
-                        callback({company: companyName, quote: quote[0]})
+                        callback({company: companyName, value: quote[0]})
                     }, err => {
                         console.log('err in getting text');
-                        callback({company: companyName}, err);
+                        callback({company: companyName, value: err}, err);
                     });
 
                 });
 
             }, err => {
                 console.log('err in clicking quickquote');
-                callback({company: companyName}, err);
-            })
+                callback({company: companyName, value: err}, err);
+            });
         });
     }
 }
