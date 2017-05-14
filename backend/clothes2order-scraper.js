@@ -12,10 +12,55 @@ var selectorMap = {
 }
 
 var companyName = 'Clothes2Order'
-var baseUrl = 'https://www.clothes2order.com/T-Shirts/Fruit+of+the+Loom+Original+T-Shirt'
+var minBaseUrl = 'https://www.clothes2order.com/T-Shirts/Fruit+of+the+Loom+Original+T-Shirt'
+var maxBaseUrl = 'https://www.clothes2order.com/T-Shirts/American+Apparel+Tri-blend+Long+Sleeve+T-shirt'
 var quickquoteSelector = '[title="Quick Quote"]'
 var deliveryButton = '#inc_delivery_charge'
 var quoteSelector = '.total*=£'
+
+/**
+ * Helper function that actually gets the quotes.
+ */
+function getQuoteHelper(browser, url, data, callback) {
+
+	browser.url(url).then( () => {
+	
+		console.log('in url')
+
+		browser.click(quickquoteSelector).waitForVisible(
+				deliveryButton, 5000).then( () => {
+
+			data[deliveryButton] = '';
+
+			browser.saveScreenshot('1.png')
+
+			tools.fillForm(browser, data, null, function(err) {
+
+				console.log('filled form')
+
+				if (err) {
+					callback(null, err);
+					return;
+				}
+
+				// This pause is definitely not ideal, will need to fix.
+				browser.pause(2000).getText(quoteSelector).then(quote => {
+					callback(quote[0])
+				}, err => {
+					console.log('err in getting text');
+					callback(null, err);
+				});
+
+			});
+
+		}, err => {
+			console.log('err in clicking quickquote');
+			browser.saveScreenshot('quickquoteerr.png')
+			callback(null, err);
+		});
+	});
+}
+
 
 module.exports = {
 
@@ -32,39 +77,14 @@ module.exports = {
 
         console.log('clothes2order quote called')
 
+        var value = {};
         var formInputs = tools.mapParamsToSelectors(inputs, selectorMap);
 
-        browser.url(baseUrl).then( () => {
-
-            console.log('in url')
-
-            browser.click(quickquoteSelector).waitForVisible(
-                    deliveryButton, 5000).then( () => {
-
-                formInputs[deliveryButton] = '';
-
-                tools.fillForm(browser, formInputs, null, function(err) {
-
-                    console.log('filled form')
-
-                    if (err) {
-                        callback({company: companyName, value: err}, err);
-                        return;
-                    }
-
-                    browser.getText(quoteSelector).then(quote => {
-                        console.log('quote retrieved')
-                        callback({company: companyName, value: quote[0]})
-                    }, err => {
-                        console.log('err in getting text');
-                        callback({company: companyName, value: err}, err);
-                    });
-
-                });
-
-            }, err => {
-                console.log('err in clicking quickquote');
-                callback({company: companyName, value: err}, err);
+        getQuoteHelper(browser, minBaseUrl, formInputs, (quote, err) => {
+            value['min'] = err ? err : quote;
+            getQuoteHelper(browser, maxBaseUrl, formInputs, (quote, err) => {
+                value['max'] = err ? err : quote;
+                callback({company: companyName, value: value});
             });
         });
     }

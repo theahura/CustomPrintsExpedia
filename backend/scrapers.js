@@ -44,7 +44,6 @@ module.exports = {
                 // promise.resolve instead of an actual function to start
                 if (data)
                     quotes[data.company] = data.value
-                console.log(data)
                 return next()
             });
         }, Promise.resolve()).then(data => {
